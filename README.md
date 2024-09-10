@@ -4,7 +4,7 @@ O intuito desse repositório é testar e aprender a usar o sistema de mensageria
 Cada etapa (exceto a primeira) será separada por Pull Requests para que possa ser mais fácil de identificar as etapas da versão final.
 
 ## ([#0](https://github.com/lucasgianine/message-queuing/commit/c86a7cd0750668b64d3e57371d61874107304e26)) Hello world!
-O conceito dessa etapa é apresentar o básico da mensageria, teremos um <i>Producer</i> que irá enviar uma mensagem, a <i>queue</i>, ou <i>fila</i> que irá fazer o processo onde tranformará a mensagem em um buffer para que, finalmente, seja entregue ao <i>Consumer</i>, que imprimirá a mensagem.
+O conceito dessa etapa é apresentar o básico da mensageria, teremos um <i>Producer</i> que irá enviar uma mensagem, a <i>queue</i>, ou <i>fila</i> que irá fazer o processo onde armazenará a mensagem em um buffer para que, finalmente, seja entregue ao <i>Consumer</i>, que imprimirá a mensagem.
 
 ```mermaid
 flowchart LR
@@ -31,7 +31,7 @@ Utilize esses comandos para teste:
   # -> [x] Sent: Hello World!
 ```
 
-## (#1) Work Queues
+## ([#1](https://github.com/lucasgianine/message-queuing/pull/1)) Work Queues
 Vamos trabalhar em criar Work Queues (ou Task Queues) para distribuir tarefas demoradas entre vários workers, ou seja, quando uma tarefa exije muitos recursos, todo fluxo espera que ela seja concluída para que a mensagem seja exibida, a ideia do Work Queues é que agendemos a tarefa para que ela seja feita mais tarde.
 
 ```mermaid
@@ -105,3 +105,38 @@ Pra corrigir esse feito, usamos `prefetch` com o valor `1` para que o Rabbit ent
 ```typescript
   channel.prefetch(1)
 ```
+
+## ([#2](https://github.com/lucasgianine/message-queuing/pull/2)) Publish and Subscribe
+Dessa vez iremos entregar uma mensagem para vários consumidores, criaremos um registro simples com dois programas, onde um emitirá mensagens de registro e outro que vai receber e imprimir, no nosso programa, cada cópia em execução do receptor receberá as mensagens, onde o receptor poderá se comunicar com os dois queues ao mesmo tempo.
+
+Toda ideia do Rabbit é que, na verdade o <i>producer</i> nunca envie mensagem diretamente para fila (pois na realidade é que o <i>producer</i> nem sabe se a mensagem chegará até lá), mas ao invés disso ele envie mensagens para uma `exchange`, pois ela sabe exatamente o que fazer com a mensagem que recebeu para empurrá-lá para uma <i>queue</i>.
+
+```mermaid
+flowchart LR
+  P["Producer"]
+  X{"Exchange"}
+  Q1["Queue 1"]
+  Q2["Queue 2"]
+
+  P --> X --> Q1
+  X --> Q2
+```
+
+Há alguns tipos de exchanges, mas vamos trabalhar em cima do `fanout`: Ela transmite todas as mensagens que recebe para todas as filas que ela tem conhecimento.
+```typescript
+  channel.assertExchange('logs', 'fanout', { durable: false })
+```
+
+#### Filas temporárias
+Dar o nome para uma fila é importante para compartilharmos ela entre os <i>produces</i> e <i>consumers</i>, mas no caso dessa aplicação de logs, não precisamos criar uma fila permanente, deixaremos o nome da fila vazio para que o próprio servidor possa dar um nome aleatório, já que nesse momento isso não é prioritário visto que a fila, depois de ser consumida, deverá ser apagada automaticamente.
+```typescript
+  channel.assertQueue('', {
+    exclusive: true
+  })
+
+  // Exemplo de retorno: amq.gen-JzTY20BRgKO-HjmUJj0wLg
+```
+
+## Referência
+- [RabbitMQ](https://www.rabbitmq.com/)
+- [Documentação do RabbitMQ](https://www.rabbitmq.com/tutorials)

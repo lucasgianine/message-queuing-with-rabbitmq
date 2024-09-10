@@ -6,7 +6,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "producer": "node src/new_task.js",
-    "consumer": "node src/worker.js"
+    "consumer": "node src/worker.js",
+    "emit_logs": "node src/logs/emit_logs.js",
+    "receive_logs": "node src/logs/receive_logs.js"
   },
   "keywords": [],
   "author": "",
