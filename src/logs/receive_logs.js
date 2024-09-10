@@ -17,7 +17,6 @@ amqp.connect('amqp://localhost', (err, conn) => {
     }, (err, q) => {
       if (err) throw err
 
-      console.log(` [x] Received: ${message.content.toString()}`)
       channel.bindQueue(q.queue, exchange, '')
 
       channel.consume(q.queue, (message) => {

@@ -106,7 +106,7 @@ Pra corrigir esse feito, usamos `prefetch` com o valor `1` para que o Rabbit ent
   channel.prefetch(1)
 ```
 
-## ([#2](https://github.com/lucasgianine/message-queuing/pull/2)) Publish and Subscribe
+## ([#2](https://github.com/lucasgianine/message-queuing/pull/2)) Publish/Subscribe
 Dessa vez iremos entregar uma mensagem para vários consumidores, criaremos um registro simples com dois programas, onde um emitirá mensagens de registro e outro que vai receber e imprimir, no nosso programa, cada cópia em execução do receptor receberá as mensagens, onde o receptor poderá se comunicar com os dois queues ao mesmo tempo.
 
 Toda ideia do Rabbit é que, na verdade o <i>producer</i> nunca envie mensagem diretamente para fila (pois na realidade é que o <i>producer</i> nem sabe se a mensagem chegará até lá), mas ao invés disso ele envie mensagens para uma `exchange`, pois ela sabe exatamente o que fazer com a mensagem que recebeu para empurrá-lá para uma <i>queue</i>.
@@ -135,6 +135,39 @@ Dar o nome para uma fila é importante para compartilharmos ela entre os <i>prod
   })
 
   // Exemplo de retorno: amq.gen-JzTY20BRgKO-HjmUJj0wLg
+```
+
+Depois de todo o processo de criar <i>exchange</i> e as filas temporárias agora vamos fazer nossa <i>exchange</i> enviar mensagem para a <i>fila</i>.
+```mermaid
+flowchart LR
+  P["Producer"]
+  X{"Exchange"}
+  Q1["Queue 1"]
+  Q2["Queue 2"]
+
+  P --> X -- Binding --> Q1
+  X -- Binding --> Q2
+```
+
+Chamamos de `binding` o relacionamento entre exchange (troca) e uma queue (fila).
+```typescript
+  channel.bindQueue(queue_name, 'logs', '')
+```
+
+Utilize esses comandos para teste:
+```bash
+  # shell 1
+  npm run receive_logs
+
+  # -> Será criado um arquivo .log na pasta src/logs
+  # -> No arquivo aparecerá a <mensagem> escrita no próximo shell
+```
+
+```bash
+  # shell 2
+  npm run emit_logs <mensagem>
+
+  # -> [x] Sent: <mensagem>
 ```
 
 ## Referência
