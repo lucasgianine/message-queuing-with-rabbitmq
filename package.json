@@ -5,7 +5,8 @@
   "main": "send.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node send.js && receive.js"
+    "producer": "node src/send.js",
+    "consumer": "node src/receive.js"
   },
   "keywords": [],
   "author": "",
