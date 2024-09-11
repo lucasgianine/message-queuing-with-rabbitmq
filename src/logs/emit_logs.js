@@ -6,18 +6,21 @@ amqp.connect('amqp://localhost', (err, conn) => {
   conn.createChannel((err, channel) => {
     if (err) throw err
 
-    const exchange = 'direct_logs'
-    const args = process.argv.slice(2)
-    const message = args.slice(1).join(' ') || 'Hello World!'
-    const severety = (args.length > 0) ? args[0] : 'info'
+    const exchange = 'logs'
+    const message = process.argv.slice(2).join(' ') ?? 'Hello World!'
 
-    channel.assertExchange(exchange, 'direct', {
+    channel.assertExchange(exchange, 'fanout', {
       durable: false
     })
 
-    channel.publish(exchange, severety, Buffer.from(message))
+    /*
+      A string vazia como segundo parâmetro significa que não queremos
+      enviar a mensagem para nenhuma fila específica.
+      Queremos apenas publicá-la em nossa troca de 'logs'.
+    */
+    channel.publish(exchange, '', Buffer.from(message))
 
-    console.log(` [x] Sent to ${severety}: ${message}`)
+    console.log(` [x] Sent: ${message}`)
   })
 
   setTimeout(() => {

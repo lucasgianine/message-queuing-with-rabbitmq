@@ -48,7 +48,7 @@ flowchart LR
 Utilize esses comandos para teste:
 ```bash
   # shell 1
-  npm run consumer
+  npm run work:consumer
 
   # -> [*] Waiting for messages. To exit press CTRL+C
   # -> [x] Received <mesagem>!
@@ -57,7 +57,7 @@ Utilize esses comandos para teste:
 
 ```bash
   # shell 2
-  npm run producer <mensagem>
+  npm run work:producer <mensagem>
 
   # -> [x] Sent: <mensagem>
 ```
@@ -69,7 +69,6 @@ Se executarmos o `npm run consumer` em dois shell, e depois enviarmos as mensage
 #### Message acknowledgment
 Ás vezes, fazer uma tarefa leva alguns segundos, e por sua vez, algumas tarefas acabam morrendo no meio do caminho sem ter chance de serem executadas, e tudo que estava sendo processado acaba sendo perdido no meio do caminho, e se fizessemos algo para que, assim que uma tarefa morrer, ela passasse seu trabalho (que estava em andamento) para o próximo <i>producer</i>?
 ```typescript
-  // worker.js
   noAck: false // acknowledgment mode
 ```
 Aplicar noAck como `false` (que anteriormente era `true`) garante que, mesmo que você encerre um worker (com CTRL+C) nada será perdido, todas as mensagens não confirmadas serão reenviadas (desde que esteja no mesmo canal em que ela foi enviada).
@@ -158,7 +157,7 @@ Chamamos de `binding` (traduzido: Vinculação) o relacionamento entre exchange 
 Utilize esses comandos para teste:
 ```bash
   # shell 1
-  npm run receive_logs
+  npm run logs:consumer
 
   # -> Será criado um arquivo .log na pasta src/logs
   # -> No arquivo aparecerá a <mensagem> escrita no próximo shell
@@ -166,7 +165,7 @@ Utilize esses comandos para teste:
 
 ```bash
   # shell 2
-  npm run emit_logs <mensagem>
+  npm run logs:producer <mensagem>
 
   # -> [x] Sent: <mensagem>
 ```
@@ -180,7 +179,7 @@ Ainda trabalharemos em cima das bindings, e dessa vez, passaremos parâmetros de
 Anteriormente enviávamos mensagens para todos os <i>consumers</i> sem nenhuma filtragem, isso se dava ao fato de usarmos a troca `fanout`, dessa vez usaremos a troca `direct` que enviará mensagens para queues específicas, e todas as outras mensagens sem um binding key serão descartadas.
 
 ```typescript
-// logs/emit_logs.js
+// routing/emit_logs_direct.js
 const exchange = 'direct_logs'
 channel.assertExchange(exchange, 'direct', {
   durable: false
@@ -189,7 +188,7 @@ channel.publish(exchange, severity, Buffer.from(message))
 ```
 
 ```typescript
-// logs/receive_logs.js
+// routing/receive_logs_direct.js
 args.forEach((severity) => {
   channel.bindQueue(q.queue, exchange, severity)
 })
@@ -216,7 +215,7 @@ flowchart LR
 Utilize esses comandos para teste:
 ```bash
   # shell 1
-  npm run receive_logs <rountingKey>
+  npm run routing:consumer <rountingKey>
 
   # -> Será criado um arquivo .log na pasta src/logs
   # -> No arquivo aparecerá a <rountingKey> e a <mensagem> escrita no próximo shell
@@ -226,7 +225,7 @@ Especificar `rountingKey` significa aplicar dentro da pasta `.log` somente as me
 
 ```bash
   # shell 2
-  npm run emit_logs <rountingKey> <mensagem>
+  npm run routing:producer <rountingKey> <mensagem>
 
   # -> [x] Sent '<rountingKey>': <mensagem>
 ```

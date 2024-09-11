@@ -5,12 +5,16 @@
   "main": "send.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "producer": "node src/new_task.js",
-    "consumer": "node src/worker.js",
-    "emit_logs": "node src/logs/emit_logs.js",
-    "receive_logs": "node src/logs/receive_logs.js > src/logs/logs_emitidas.log",
+    "producer": "node src/send.js",
+    "consumer": "node src/receive.js",
+    "work:producer": "node src/work_queue/new_task.js",
+    "work:consumer": "node src/work_queue/worker.js",
+    "logs:producer": "node src/logs/emit_logs.js",
+    "logs:consumer": "node src/logs/receive_logs.js > src/logs/logs.log",
+    "routing:producer": "node src/routing/emit_logs_direct.js",
+    "routing:consumer": "node src/routing/receive_logs_direct.js > src/routing/logs.log",
     "topic:producer": "node src/topic/emit_logs_topic.js",
-    "topic:consumer": "node src/topic/receive_logs_topic.js > src/logs/logs.log"
+    "topic:consumer": "node src/topic/receive_logs_topic.js > src/topic/logs.log"
   },
   "keywords": [],
   "author": "",
