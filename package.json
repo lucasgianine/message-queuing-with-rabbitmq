@@ -8,7 +8,9 @@
     "producer": "node src/new_task.js",
     "consumer": "node src/worker.js",
     "emit_logs": "node src/logs/emit_logs.js",
-    "receive_logs": "node src/logs/receive_logs.js > src/logs/logs_emitidas.log"
+    "receive_logs": "node src/logs/receive_logs.js > src/logs/logs_emitidas.log",
+    "topic:producer": "node src/topic/emit_logs_topic.js",
+    "topic:consumer": "node src/topic/receive_logs_topic.js > src/logs/logs.log"
   },
   "keywords": [],
   "author": "",

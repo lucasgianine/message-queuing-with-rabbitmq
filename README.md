@@ -231,6 +231,50 @@ Especificar `rountingKey` significa aplicar dentro da pasta `.log` somente as me
   # -> [x] Sent '<rountingKey>': <mensagem>
 ```
 
+## ([#4](https://github.com/lucasgianine/message-queuing/pull/4)) Topics
+Apesar do uso do `direct` melhore a forma em que selecionamos as filas que queremos enviar as mensagens, ele ainda nãoconsegue fazer roteamento com base em múltiplos critérios, isto é: e se queremos assinar registros não apenas com a gravidade (severity) mas também com base na fonte que emitiu o registro. (Exemplo que a doc entrega sobre o assunto é o conceito da `syslog` da ferramenta Unix)
+
+"Mensagens que são enviadas para exchange `topics` não pode ter uma `routing_key` arbitrária, deve ter uma lista de palavras delimitada por pontos. [...] Pode haver quantas palavras na chave de roteamento você quiser, até o limite de 255 bytes"
+
+`topics` segue a mesma linha do `direct`, as mensagens serão direcionadas para uma fila específica graças ao roteamento, a questão do `topics` é que você pode selecionar mais de uma fila pra ele.
+
+- `*` pode substituir exatamente uma palavra.
+- `#` pode substituir zero ou mais palavras.
+
+```mermaid
+flowchart LR
+  P["Producer"]
+  X{"direct"}
+  Q1["Queue 1"]
+  Q2["Queue 2"]
+  C1["Consumer 1"]
+  C2["Consumer 2"]
+
+  P --> X -- *.orange.* --> Q1 --> C1
+  X -- *.*.rabit --> Q2 --> C2
+  X -- lazy.# --> Q2
+```
+
+A documentação separou um ótimo exemplo se levarmos como base que esses três itens são `<velocidade>.<cor>.<especie>`:
+
+"Uma mensagem com uma chave de roteamento definida como quick.orange.rabbit será entregue a ambas as filas. A mensagem `lazy.orange.elephant` também irá para ambas. Por outro lado, `quick.orange.fox` irá apenas para a primeira fila e `lazy.brown.fox` apenas para a segunda. `lazy.pink.rabbit`será entregue à segunda fila apenas uma vez, mesmo que corresponda a duas ligações. `quick.brown.fox`não corresponde a nenhuma ligação, então será descartada."
+
+Utilize esses comandos para teste:
+```bash
+  # shell 1
+  npm run topic:consumer <facility>.<severity>
+
+  # -> Será criado um arquivo .log na pasta src/topic
+  # -> No arquivo aparecerá a <facility>.<severity> e a <mensagem> escrita no próximo shell
+```
+
+```bash
+  # shell 2
+  npm run emit_logs <facility>.<severity> <mensagem>
+
+  # -> [x] Sent '<facility>.<severity>': <mensagem>
+```
+
 ## Referência
 - [RabbitMQ](https://www.rabbitmq.com/)
 - [Documentação do RabbitMQ](https://www.rabbitmq.com/tutorials)
