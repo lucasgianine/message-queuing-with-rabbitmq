@@ -6,9 +6,9 @@ amqp.connect('amqp://localhost', (err, conn) => {
   conn.createChannel((err, channel) => {
     if (err) throw err
 
-    const exchange = 'logs'
+    const exchange = 'direct_logs'
 
-    channel.assertExchange(exchange, 'fanout', {
+    channel.assertExchange(exchange, 'direct', {
       durable: false
     })
 
@@ -17,10 +17,12 @@ amqp.connect('amqp://localhost', (err, conn) => {
     }, (err, q) => {
       if (err) throw err
 
-      channel.bindQueue(q.queue, exchange, '')
+      args.forEach((severity) => {
+        channel.bindQueue(q.queue, exchange, severity)
+      })
 
       channel.consume(q.queue, (message) => {
-        if (message.content) console.log(` [x] ${message.content.toString()}`)
+        if (message.content) console.log(` [x] ${message.fields.routingKey}: ${message.content.toString()}`)
       }, { noAck: true })
     })
   })
