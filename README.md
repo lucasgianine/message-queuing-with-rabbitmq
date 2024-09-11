@@ -149,7 +149,8 @@ flowchart LR
   X -- Binding --> Q2
 ```
 
-Chamamos de `binding` o relacionamento entre exchange (troca) e uma queue (fila).
+Chamamos de `binding` (traduzido: Vinculação) o relacionamento entre exchange (troca) e uma queue (fila).
+"Pode ser lido como: A queue está interessada em mensagens dessa exchange."
 ```typescript
   channel.bindQueue(queue_name, 'logs', '')
 ```
@@ -168,6 +169,66 @@ Utilize esses comandos para teste:
   npm run emit_logs <mensagem>
 
   # -> [x] Sent: <mensagem>
+```
+
+De forma simples: Criamos um sistema de registro simples que trasmite mensagens de registros (logs) para receptores.
+
+## ([#3](https://github.com/lucasgianine/message-queuing/pull/3)) Routing
+Trabalharemos com roteamento junto ao que foi aprendido no item anterior, redirecionaremos mensagens de erros críticas para o arquivo de log (economizando espaço no disco).
+Ainda trabalharemos em cima das bindings, e dessa vez, passaremos parâmetros de chave de binding para que possamos fazer uma <i>exchange</i> direta para diversas queues
+
+Anteriormente enviávamos mensagens para todos os <i>consumers</i> sem nenhuma filtragem, isso se dava ao fato de usarmos a troca `fanout`, dessa vez usaremos a troca `direct` que enviará mensagens para queues específicas, e todas as outras mensagens sem um binding key serão descartadas.
+
+```typescript
+// logs/emit_logs.js
+const exchange = 'direct_logs'
+channel.assertExchange(exchange, 'direct', {
+  durable: false
+})
+channel.publish(exchange, severity, Buffer.from(message))
+```
+
+```typescript
+// logs/receive_logs.js
+args.forEach((severity) => {
+  channel.bindQueue(q.queue, exchange, severity)
+})
+```
+
+Aplicaremos esse tipo de troca no nosso sistema de logs, trocaremos `fanout` por `direct` e forneceremos uma `routing key` na hora de publicar para selecionar a gravidade que o receptor irá receber.
+`severity` é o tipo de `routing key` que passaremos, nesse caso vamos assumir que ela seja `info`, `warning` ou `error`.
+
+```mermaid
+flowchart LR
+  P["Producer"]
+  X{"direct"}
+  Q1["Queue 1"]
+  Q2["Queue 2"]
+  C1["Consumer 1"]
+  C2["Consumer 2"]
+
+  P --> X -- error --> Q1 --> C1
+  X -- info --> Q2 --> C2
+  X -- warning --> Q2
+  X -- error --> Q2
+```
+
+Utilize esses comandos para teste:
+```bash
+  # shell 1
+  npm run receive_logs <rountingKey>
+
+  # -> Será criado um arquivo .log na pasta src/logs
+  # -> No arquivo aparecerá a <rountingKey> e a <mensagem> escrita no próximo shell
+```
+
+Especificar `rountingKey` significa aplicar dentro da pasta `.log` somente as mensagens para aquela rota específica.
+
+```bash
+  # shell 2
+  npm run emit_logs <rountingKey> <mensagem>
+
+  # -> [x] Sent '<rountingKey>': <mensagem>
 ```
 
 ## Referência
