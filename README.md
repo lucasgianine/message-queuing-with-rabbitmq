@@ -216,11 +216,13 @@ flowchart LR
 Utilize esses comandos para teste:
 ```bash
   # shell 1
-  npm run receive_logs
+  npm run receive_logs <rountingKey>
 
   # -> Será criado um arquivo .log na pasta src/logs
   # -> No arquivo aparecerá a <rountingKey> e a <mensagem> escrita no próximo shell
 ```
+
+Especificar `rountingKey` significa aplicar dentro da pasta `.log` somente as mensagens para aquela rota específica.
 
 ```bash
   # shell 2

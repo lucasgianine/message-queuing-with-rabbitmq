@@ -1,5 +1,12 @@
 const amqp = require('amqplib/callback_api')
 
+const args = process.argv.slice(2)
+
+if (args.length === 0) {
+  console.log('Usage: receive_logs.js [info] [warning] [error]')
+  process.exit(1)
+}
+
 amqp.connect('amqp://localhost', (err, conn) => {
   if (err) throw err
 
