@@ -14,7 +14,9 @@
     "routing:producer": "node src/routing/emit_logs_direct.js",
     "routing:consumer": "node src/routing/receive_logs_direct.js > src/routing/logs.log",
     "topic:producer": "node src/topic/emit_logs_topic.js",
-    "topic:consumer": "node src/topic/receive_logs_topic.js > src/topic/logs.log"
+    "topic:consumer": "node src/topic/receive_logs_topic.js > src/topic/logs.log",
+    "client": "node src/rpc/rpc_client.js",
+    "server": "node src/rpc/rpc_server.js"
   },
   "keywords": [],
   "author": "",
