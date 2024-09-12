@@ -1,5 +1,4 @@
 const amqp = require('amqplib/callback_api')
-const { generateUuid } = require('./aux_function/generate_uuid')
 
 const args = process.argv.slice(2)
 
@@ -41,3 +40,8 @@ amqp.connect('amqp://localhost', (err, conn) => {
     })
   })
 })
+
+function generateUuid() {
+  const uuid = Math.random().toString() + Math.random().toString() + Math.random().toString()
+  return uuid
+}

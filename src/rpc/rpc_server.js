@@ -1,5 +1,4 @@
 const amqp = require('amqplib/callback_api')
-const { fibonacci } = require('./aux_function/fibonacci')
 
 amqp.connect('amqp://localhost', (err, conn) => {
   if (err) throw err
@@ -15,7 +14,7 @@ amqp.connect('amqp://localhost', (err, conn) => {
     channel.consume(queue, function reply(message) {
       const number = parseInt(message.content.toString())
 
-      console.log(` [.] fib${number}`)
+      console.log(` [.] fib(${number})`)
 
       const result = fibonacci(number)
 
@@ -29,3 +28,8 @@ amqp.connect('amqp://localhost', (err, conn) => {
     })
   })
 })
+
+function fibonacci(number) {
+  if (number === 0 || number === 1) return number
+  return fibonacci(number - 1) + fibonacci(number - 2)
+}
