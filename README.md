@@ -274,6 +274,23 @@ Utilize esses comandos para teste:
   # -> [x] Sent '<facility>.<severity>': <mensagem>
 ```
 
+## ([#5](https://github.com/lucasgianine/message-queuing/pull/5)) RPC (Remote Procedure Call)
+
+Utilize esses comandos para teste:
+```bash
+  # shell 1
+  npm run server
+
+  # -> [x] Awaiting RPC requests
+```
+
+```bash
+  # shell 2
+  npm run client <número>
+
+  # -> [x] Requesting fib(30)
+```
+
 ## Referência
 - [RabbitMQ](https://www.rabbitmq.com/)
 - [Documentação do RabbitMQ](https://www.rabbitmq.com/tutorials)
